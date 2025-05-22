@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f9fc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .expense-summary {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex: 1 1 calc(33.333% - 10px);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        .summary-card p {
+            font-size: 1.5rem;
+            color: #007bff;
+            margin: 10px 0 0;
+        }
+
+        .add-expense {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .add-expense form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .add-expense input, .add-expense select, .add-expense button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .add-expense button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .add-expense button:hover {
+            background-color: #0056b3;
+        }
+
+        .expense-table {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+
+        .delete-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Expense Tracker</h1>
+        </div>
+
+        <div class="expense-summary">
+            <div class="summary-card">
+                <h3>Total Expenses</h3>
+                <p id="total-expenses">₹0.00</p>
+            </div>
+            <div class="summary-card">
+                <h3>Food & Dining</h3>
+                <p id="food-dining">₹0.00</p>
+            </div>
+            <div class="summary-card">
+                <h3>Transportation</h3>
+                <p id="transportation">₹0.00</p>
+            </div>
+            <div class="summary-card">
+                <h3>Shopping</h3>
+                <p id="shopping">₹0.00</p>
+            </div>
+            <div class="summary-card">
+                <h3>Entertainment</h3>
+                <p id="entertainment">₹0.00</p>
+            </div>
+            <div class="summary-card">
+                <h3>Bills & Utilities</h3>
+                <p id="bills-utilities">₹0.00</p>
+            </div>
+            <div class="summary-card">
+                <h3>Other</h3>
+                <p id="other">₹0.00</p>
+            </div>
+        </div>
+
+        <div class="add-expense">
+            <form id="expenseForm">
+                <input type="text" id="description" placeholder="Enter expense description">
+                <input type="number" id="amount" placeholder="Enter amount">
+                <select id="category">
+                    <option value="Food & Dining">Food & Dining</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Bills & Utilities">Bills & Utilities</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button type="button" onclick="addExpense()">+ Add Expense</button>
+            </form>
+        </div>
+
+        <div class="expense-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expenseTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const totals = {
+            'Total Expenses': 0,
+            'Food & Dining': 0,
+            'Transportation': 0,
+            'Shopping': 0,
+            'Entertainment': 0,
+            'Bills & Utilities': 0,
+            'Other': 0
+        };
+
+        function updateSummary() {
+            document.getElementById('total-expenses').innerText = `₹${totals['Total Expenses'].toFixed(2)}`;
+            document.getElementById('food-dining').innerText = `₹${totals['Food & Dining'].toFixed(2)}`;
+            document.getElementById('transportation').innerText = `₹${totals['Transportation'].toFixed(2)}`;
+            document.getElementById('shopping').innerText = `₹${totals['Shopping'].toFixed(2)}`;
+            document.getElementById('entertainment').innerText = `₹${totals['Entertainment'].toFixed(2)}`;
+            document.getElementById('bills-utilities').innerText = `₹${totals['Bills & Utilities'].toFixed(2)}`;
+            document.getElementById('other').innerText = `₹${totals['Other'].toFixed(2)}`;
+        }
+
+        function addExpense() {
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const category = document.getElementById('category').value;
+            const tableBody = document.getElementById('expenseTableBody');
+
+            if (description && amount && category) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date().toLocaleDateString()}</td>
+                    <td>${description}</td>
+                    <td>${category}</td>
+                    <td>₹${amount.toFixed(2)}</td>
+                    <td><button class="delete-button" onclick="deleteRow(this, '${category}', ${amount})">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+
+                // Update totals
+                totals['Total Expenses'] += amount;
+                totals[category] += amount;
+                updateSummary();
+
+                // Reset form
+                document.getElementById('expenseForm').reset();
+            } else {
+                alert('Please fill out all fields');
+            }
+        }
+
+        function deleteRow(button, category, amount) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+
+            // Update totals
+            totals['Total Expenses'] -= amount;
+            totals[category] -= amount;
+            updateSummary();
+        }
+
+        updateSummary();
+    </script>
+</body>
+</html>
